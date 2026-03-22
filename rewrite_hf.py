@@ -1,3 +1,4 @@
+import os
 import requests
 
 # ✅ Use HuggingFace Inference API instead of local model
