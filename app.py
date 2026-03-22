@@ -17,36 +17,37 @@ def index():
     rewritten_cv = None
 
     if request.method == "POST":
-        file = request.files["cv"]
-        job_desc = request.form["job"]
+        file = request.files.get("cv")
+        job_desc = request.form.get("job", "")
 
-        # Extract CV text
-        cv_text = extract_text_from_pdf(file)
+        if file:
+            # Extract CV text
+            cv_text = extract_text_from_pdf(file)
 
-        # Skills & experience
-        cv_skills = extract_skills(cv_text)
-        experience = extract_experience(cv_text)
+            # Skills & experience
+            cv_skills = extract_skills(cv_text)
+            experience = extract_experience(cv_text)
 
-        # Semantic match
-        score = round(semantic_similarity(cv_text, job_desc), 2)
+            # Semantic match (keyword-based)
+            score = semantic_similarity(cv_text, job_desc)
 
-        # Job skills (simple split by commas)
-        job_skills = [s.strip().lower() for s in job_desc.split(",")]
-        missing = missing_skills(cv_skills, job_skills)
+            # Job skills (split by commas)
+            job_skills = [s.strip().lower() for s in job_desc.split(",") if s.strip()]
+            missing = missing_skills(cv_skills, job_skills)
 
-        # Feedback
-        feedback = generate_feedback(cv_text, job_desc, cv_skills, missing)
+            # Feedback
+            feedback = generate_feedback(cv_text, job_desc, cv_skills, missing)
 
-        # Highlight missing skills in CV
-        highlighted_cv = cv_text
-        for skill in missing:
-            highlighted_cv = highlighted_cv.replace(
-                skill,
-                f"<span class='bg-yellow-200 font-bold'>{skill}</span>"
-            )
+            # Highlight missing skills in CV
+            highlighted_cv = cv_text
+            for skill in missing:
+                highlighted_cv = highlighted_cv.replace(
+                    skill,
+                    f"<span class='bg-yellow-200 font-bold'>{skill}</span>"
+                )
 
-        # HuggingFace AI rewrite
-        rewritten_cv = rewrite_cv_hf(cv_text)
+            # HuggingFace API rewrite
+            rewritten_cv = rewrite_cv_hf(cv_text)
 
     return render_template(
         "index.html",
@@ -59,7 +60,7 @@ def index():
         rewritten_cv=rewritten_cv
     )
 
-# ✅ FIX FOR RENDER (IMPORTANT)
+# ✅ Render compatibility: dynamic port
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # 👈 dynamic port
+    port = int(os.environ.get("PORT", 10000))  # Render provides PORT env variable
     app.run(host="0.0.0.0", port=port)
