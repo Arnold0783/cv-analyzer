@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart CV Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-sky-400 to-blue-900 min-h-screen flex items-center justify-center">
+<div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-3xl">
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-900">📄 Smart CV Analyzer</h1>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-4">
+        <div>
+            <label class="font-semibold">Upload CV (PDF):</label>
+            <input type="file" name="cv" required class="mt-1 w-full border p-2 rounded">
+        </div>
+
+        <div>
+            <label class="font-semibold">Paste Job Description (skills separated by commas):</label>
+            <textarea name="job" rows="4" required class="mt-1 w-full border p-2 rounded"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-800 transition">Analyze CV</button>
+    </form>
+
+    {% if score %}
+    <div class="mt-6 p-4 bg-sky-100 rounded">
+        <h2 class="text-xl font-bold mb-2">Semantic Match Score: <span class="text-blue-900">{{ score }}%</span></h2>
+        <h3 class="font-semibold mb-1">Detected Skills:</h3>
+        <p>{{ cv_skills|join(", ") }}</p>
+        <h3 class="font-semibold mt-2 mb-1">Years of Experience:</h3>
+        <p>{{ experience }}</p>
+        <h3 class="font-semibold mt-2 mb-1">Missing Skills:</h3>
+        <ul class="list-disc ml-6 text-blue-800">
+            {% for word in missing %}
+                <li>{{ word }}</li>
+            {% endfor %}
+        </ul>
+        <h3 class="font-semibold mt-2 mb-1">Feedback:</h3>
+        <ul class="list-disc ml-6 text-blue-900">
+            {% for f in feedback %}
+                <li>{{ f }}</li>
+            {% endfor %}
+        </ul>
+        <h3 class="font-semibold mt-4 mb-1">CV Preview with Highlights:</h3>
+        <p class="whitespace-pre-wrap text-blue-900">{{ highlighted_cv|safe }}</p>
+
+        <h3 class="font-semibold mt-4 mb-1">AI Rewrite Suggestion:</h3>
+        <p class="whitespace-pre-wrap text-blue-900">{{ rewritten_cv }}</p>
+    </div>
+    {% endif %}
+</div>
+</body>
+</html>
